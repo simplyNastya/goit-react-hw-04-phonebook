@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import Form from './Form/Form';
 import Contacts from './Contacts/Contacts';
@@ -11,7 +11,13 @@ export const App = () => {
   });
   const [filter, setFilter] = useState('');
 
+  const firstRender = useRef(true);
+
   useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
     localStorage.setItem('my-contacts', JSON.stringify(contacts));
   }, [contacts]);
 
@@ -48,6 +54,12 @@ export const App = () => {
     setFilter(event.target.value);
   };
 
+  const onDelete = id => {
+    setContacts(prevContacts => {
+      return prevContacts.filter(contact => contact.id !== id);
+    });
+  };
+
   const filteredContacts = () => {
     if (!filter) {
       return contacts;
@@ -57,12 +69,6 @@ export const App = () => {
         name.toLowerCase().includes(filter.toLowerCase()) ||
         number.includes(filter)
     );
-  };
-
-  const onDelete = id => {
-    setContacts(prevContacts => {
-      return prevContacts.filter(contact => contact.id !== id);
-    });
   };
 
   return (
